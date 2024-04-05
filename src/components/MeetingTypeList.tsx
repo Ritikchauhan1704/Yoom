@@ -1,18 +1,18 @@
-/* eslint-disable camelcase */
 'use client';
 
 import {useState} from 'react';
-import {useRouter} from 'next/navigation';
-
 import HomeCard from './HomeCard';
+import {useRouter} from 'next/navigation';
 import MeetingModal from './MeetingModal';
-import {Call, useStreamVideoClient} from '@stream-io/video-react-sdk';
 import {useUser} from '@clerk/nextjs';
-import Loader from './Loader';
+import {Call, useStreamVideoClient} from '@stream-io/video-react-sdk';
+import {useToast} from '@/components/ui/use-toast';
+import {Toast} from './ui/toast';
 import {Textarea} from './ui/textarea';
 import ReactDatePicker from 'react-datepicker';
-import {useToast} from './ui/use-toast';
-import {Input} from './ui/input';
+import { Input } from './ui/input';
+import Loader from './Loader';
+
 
 const initialValues = {
   dateTime: new Date(),
@@ -28,14 +28,14 @@ const MeetingTypeList = () => {
   const [values, setValues] = useState(initialValues);
   const [callDetail, setCallDetail] = useState<Call>();
   const client = useStreamVideoClient();
-  const {user} = useUser();
-  const {toast} = useToast();
+  const { user } = useUser();
+  const { toast } = useToast();
 
   const createMeeting = async () => {
     if (!client || !user) return;
     try {
       if (!values.dateTime) {
-        toast({title: 'Please select a date and time'});
+        toast({ title: 'Please select a date and time' });
         return;
       }
       const id = crypto.randomUUID();
@@ -61,14 +61,13 @@ const MeetingTypeList = () => {
       });
     } catch (error) {
       console.error(error);
-      toast({title: 'Failed to create Meeting'});
+      toast({ title: 'Failed to create Meeting' });
     }
   };
 
   if (!client || !user) return <Loader />;
 
   const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
-
   return (
     <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
       <HomeCard
@@ -79,28 +78,27 @@ const MeetingTypeList = () => {
         className="bg-orange-1"
       />
       <HomeCard
-        img="/icons/join-meeting.svg"
-        title="Join Meeting"
-        description="via invitation link"
-        className="bg-blue-1"
-        handleClick={() => setMeetingState('isJoiningMeeting')}
-      />
-      <HomeCard
         img="/icons/schedule.svg"
         title="Schedule Meeting"
         description="Plan your meeting"
-        className="bg-purple-1"
         handleClick={() => setMeetingState('isScheduleMeeting')}
+        className="bg-blue-1"
       />
       <HomeCard
         img="/icons/recordings.svg"
         title="View Recordings"
-        description="Meeting Recordings"
-        className="bg-yellow-1"
+        description="Check out your recordings"
         handleClick={() => router.push('/recordings')}
+        className="bg-purple-1"
       />
-
-      {!callDetail ? (
+      <HomeCard
+        img="/icons/join-meeting.svg"
+        title="Join Meeting"
+        description="via invitation link"
+        handleClick={() => setMeetingState('isJoiningMeeting')}
+        className="bg-yellow-1"
+      />
+       {!callDetail ? (
         <MeetingModal
           isOpen={meetingState === 'isScheduleMeeting'}
           onClose={() => setMeetingState(undefined)}
@@ -114,7 +112,7 @@ const MeetingTypeList = () => {
             <Textarea
               className="border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0"
               onChange={(e) =>
-                setValues({...values, description: e.target.value})
+                setValues({ ...values, description: e.target.value })
               }
             />
           </div>
@@ -124,7 +122,7 @@ const MeetingTypeList = () => {
             </label>
             <ReactDatePicker
               selected={values.dateTime}
-              onChange={(date) => setValues({...values, dateTime: date!})}
+              onChange={(date) => setValues({ ...values, dateTime: date! })}
               showTimeSelect
               timeFormat="HH:mm"
               timeIntervals={15}
@@ -141,7 +139,7 @@ const MeetingTypeList = () => {
           title="Meeting Created"
           handleClick={() => {
             navigator.clipboard.writeText(meetingLink);
-            toast({title: 'Link Copied'});
+            toast({ title: 'Link Copied' });
           }}
           image={'/icons/checked.svg'}
           buttonIcon="/icons/copy.svg"
@@ -160,7 +158,7 @@ const MeetingTypeList = () => {
       >
         <Input
           placeholder="Meeting link"
-          onChange={(e) => setValues({...values, link: e.target.value})}
+          onChange={(e) => setValues({ ...values, link: e.target.value })}
           className="border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
       </MeetingModal>
@@ -175,6 +173,6 @@ const MeetingTypeList = () => {
       />
     </section>
   );
-};
+}
 
 export default MeetingTypeList;
